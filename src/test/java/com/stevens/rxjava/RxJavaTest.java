@@ -1,7 +1,6 @@
 package com.stevens.rxjava;
 
 import io.reactivex.Observable;
-import io.reactivex.functions.Function;
 import org.junit.Test;
 
 
@@ -13,7 +12,6 @@ public class RxJavaTest {
                 "Jan", "Feb", "Mar", "Apl", "May", "Jun", "July", "Aug", "Sept", "Oct", "Nov", "Dec"
         };
 
-        Function
 
         Observable.defer(() -> {
             return Observable.fromArray(monthArray);
