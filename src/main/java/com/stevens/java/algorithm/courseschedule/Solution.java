@@ -3,60 +3,70 @@ package com.stevens.java.algorithm.courseschedule;
 import java.util.*;
 
 public class Solution {
+
+    private class Node {
+        List<Integer> postList = new ArrayList<>();
+        int indegree = 0;
+        int id = 0;
+
+        public Node(int id) {
+            this.id = id;
+        }
+
+    }
+
+    /**
+     * D --> C --> B
+     * A -->B
+     * 要学B，必须先学习C，要学习C，必须先学习D
+     * B 的入度 为 2, 邻接表 []
+     * C 的入度 为 1, 邻接表[B]
+     * D 的入度 为 0 [C]
+     * A 的入度为 0 [B]
+     *
+     * @param numCourses
+     * @param prerequisites
+     * @return
+     */
+
     public boolean canFinish(int numCourses, int[][] prerequisites) {
 
-        Map<Integer, Integer> outNum = new HashMap<>();
-        Map<Integer, List<Integer>> inNodes = new HashMap<>();
-        Set<Integer> set = new HashSet<>();
+        Map<Integer, Node> matrix = new HashMap<>();
+        Queue<Node> queue = new LinkedList<>();
 
-        int rows = prerequisites.length;
-        for (int i = 0; i < rows; i++) {
-            int key = prerequisites[i][0];
-            int value = prerequisites[i][1];
-            set.add(key);
-            set.add(value);
-            if (!outNum.containsKey(key)) {
-                outNum.put(key, 0);
-            }
-
-            if (!outNum.containsKey(value)) {
-                outNum.put(value, 0);
-            }
-
-            int num = outNum.get(key);
-            outNum.put(key, num + 1);
-
-            if (!inNodes.containsKey(value)) {
-                inNodes.put(value, new ArrayList<>());
-            }
-            inNodes.get(value).add(key);
+        for (int i = 0; i < numCourses; i++) {
+            matrix.put(i, new Node(i));
         }
 
-        Queue<Integer> queue = new LinkedList<>();
-        for (int k : set) {
-            if (outNum.get(k) == 0) {
-                queue.offer(k);
+        for (int i = 0; i < prerequisites.length; i++) {
+            int[] values = prerequisites[i];
+            int current = values[0];
+            int pre = values[1];
+            matrix.get(pre).postList.add(current);
+            matrix.get(current).indegree += 1;
+        }
+
+        for (Node node : matrix.values()) {
+            if (node.indegree == 0) {
+                queue.add(node);
             }
         }
+
         while (!queue.isEmpty()) {
-            int v = queue.poll();
-            List<Integer> list = inNodes.getOrDefault(v, new ArrayList<>());
-            for (int k : list) {
-                int num = outNum.get(k);
-                if (num == 1) {
-                    queue.offer(k);
+            Node node = queue.poll();
+            numCourses--;
+            for (int id : node.postList) {
+                Node pre = matrix.get(id);
+                pre.indegree -= 1;
+                if (pre.indegree == 0) {
+                    queue.add(pre);
                 }
-                outNum.put(k, num - 1);
-            }
-
-        }
-
-        for (int k : set) {
-            if (outNum.get(k) != 0) {
-                return false;
             }
         }
 
-        return false;
+
+        return numCourses == 0;
     }
+
+
 }
